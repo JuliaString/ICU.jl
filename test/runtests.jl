@@ -10,16 +10,16 @@ upp = "\u3a5\u308\u301"
 @testset "utext" begin
 end
 
-@testset "ustring" begin
+@testset "ustring (general string)" begin
 end
 
-@testset "ucasemap" begin
+@testset "ucasemap (Case mapping)" begin
     @test ICU.tolower("ABCDEF") == "abcdef"
     @test ICU.toupper("abcdef") == "ABCDEF"
     @test ICU.totitle("this") == "This"
 end
 
-@testset "ubrk" begin
+@testset "ubrk (Word/Line/Sentence breaking)" begin
     str = ICU.cvt_utf16("This is a test of splitting sentences and words.  Scott is busy.\nHow does this\nsplit? Tell me.")
     for (sep, res) in ((UBRK.WORD,
                         [4,5,7,8,9,10,14,15,17,18,27,28,37,38,41,42,47,48,49,50,
@@ -36,17 +36,28 @@ end
     end
 end
 
-@testset "ucnv" begin
+@testset "ucnv (Conversion)" begin
     @test ICU.tolower(ICU.cvt_utf16("ABCDEF")) == "abcdef"
     @test ICU.toupper(ICU.cvt_utf16("abcdef")) == "ABCDEF"
     @test ICU.totitle(ICU.cvt_utf16("this")) == "This"
 end
 
-@testset "ucol" begin
+@testset "ucol (Collation)" begin
 end
 
-@testset "ucal" begin
+@testset "ucal (Calendar)" begin
 end
 
-@testset "udat" begin
+@testset "udat (Date)" begin
+end
+
+@testset "ucsdet (Character Set Detection)" begin
+    csd = UCharsetDetector()
+    for s in ("This is ASCII test, let's see how it fairs",
+                    "にほんでは、近頃ちかごろ多おおくの人ひとが保育園ほいくえん問題もんだいについて話はなしている。特とくに東京とうきょうでは十分じゅうぶんな施設しせつがないので、子こどもを保育園ほいくえんに入いれることがとても大変たいへんだ。今いま私わたしは東京とうきょうに住すんでいるので、息子むすこを保育園ほいくえんに入いれるのは不可能ふかのうだろうと思おもっていた。しかし驚おどろいたことに、息子むすこは受うけ入いれてもらえた"))
+        set!(csd, s)
+        @test (m = detect(csd)) != nothing
+        println(get_name(m))
+    end
+    close(csd)
 end
