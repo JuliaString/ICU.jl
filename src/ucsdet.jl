@@ -23,12 +23,13 @@ macro libucsdet(s)  ; _libicu(s, iculibi18n, "ucsdet_")   ; end
 
 export UCharsetDetector
 
+const _empty_vec8 = b""
+
 type UCharsetDetector
     p::Ptr{Void}
     s::Vector{UInt8}
 
     function UCharsetDetector()
-        const global _empty_vec8 = b""
         err = UErrorCode[0]
         p = ccall(@libucsdet(open), Ptr{Void}, (Ptr{UErrorCode},), err)
         SUCCESS(err[1]) || error("ICU: could not open charset detector")

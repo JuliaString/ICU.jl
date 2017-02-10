@@ -46,18 +46,32 @@ end
 end
 
 @testset "ucal (Calendar)" begin
+    fields = [UCAL.YEAR, UCAL.MONTH, UCAL.DATE, UCAL.HOUR_OF_DAY, UCAL.MINUTE, UCAL.SECOND]
+    cal = UCalendar("America/Los_Angeles")
+    ICU.set_millis!(cal, 1486735888612.)
+    @test ICU.get(cal,fields) == [2017, 1, 10, 6, 11, 28]
+    cal = UCalendar("Belgium/Antwerp")
+    ICU.set_millis!(cal, 1486735888612.)
+    @test ICU.get(cal,fields) == [2017, 1, 10, 14, 11, 28]
+    ICU.clear!(cal)
 end
 
 @testset "udat (Date)" begin
+    df = UDateFormat(UDAT.SHORT, UDAT.SHORT, "en_US")
+    @test ICU.format(df, 1486735888612.) == "2017-02-10 14:11"
 end
 
 @testset "ucsdet (Character Set Detection)" begin
     csd = UCharsetDetector()
-    for s in ("This is ASCII test, let's see how it fairs",
-                    "にほんでは、近頃ちかごろ多おおくの人ひとが保育園ほいくえん問題もんだいについて話はなしている。特とくに東京とうきょうでは十分じゅうぶんな施設しせつがないので、子こどもを保育園ほいくえんに入いれることがとても大変たいへんだ。今いま私わたしは東京とうきょうに住すんでいるので、息子むすこを保育園ほいくえんに入いれるのは不可能ふかのうだろうと思おもっていた。しかし驚おどろいたことに、息子むすこは受うけ入いれてもらえた"))
-        set!(csd, s)
-        @test (m = detect(csd)) != nothing
-        println(get_name(m))
+    for (s, det) in ((b"This is ASCII test, let's see how it does", "ISO-8859-1"),
+                     (b"See if it detects Windows-1252, with the Euro \x80 and other characters \x8c \x9c", "windows-1252"),
+                     ("にほんでは、近頃ちかごろ多おおくの人ひとが保育園ほいくえん問題もんだいについて話はなしている。特とくに東京とうきょうでは十分じゅうぶんな施設しせつがないので、子こどもを保育園ほいくえんに入いれることがとても大変たいへんだ。今いま私わたしは東京とうきょうに住すんでいるので、息子むすこを保育園ほいくえんに入いれるのは不可能ふかのうだろうと思おもっていた。しかし驚おどろいたことに、息子むすこは受うけ入いれてもらえた", "UTF-8"))
+        ICU.set!(csd, s)
+        m = ICU.detect(csd)
+        @test m != nothing
+        if m != nothing
+            @test ICU.get_name(m) == det
+        end
     end
-    close(csd)
+    ICU.close(csd)
 end
