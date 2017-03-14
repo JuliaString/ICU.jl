@@ -189,7 +189,7 @@ type UBrk
         err = UErrorCode[0]
         p = ccall(@libbrk(open), Ptr{Void},
                   (UBrkType, Cstring, Ptr{UChar}, Int32, Ptr{UErrorCode}),
-                  kind, loc, s, length(s)-1, err)
+                  kind, loc, s, length(s), err)
         @assert SUCCESS(err[1])
         # Retain pointer to input vector, otherwise it might be GCed
         self = new(p, s)
@@ -200,7 +200,7 @@ type UBrk
         err = UErrorCode[0]
         p = ccall(@libbrk(open), Ptr{Void},
                   (UBrkType, Ptr{UInt8}, Ptr{UChar}, Int32, Ptr{UErrorCode}),
-                  kind, C_NULL, s, length(s)-1, err)
+                  kind, C_NULL, s, length(s), err)
         @assert SUCCESS(err[1])
         # Retain pointer to input vector, otherwise it might be GCed
         self = new(p, s)
@@ -343,8 +343,21 @@ get_rule_status(bi::UBrk) =
              the most recent boundary returned by the break iterator.
 """
 function get_rule_status_vec(bi::UBrk, fillinvec::Vector{Int32})
-    # ccall(@libbrk(getRuleStatusVec), Int32,
-    #       (UBreakIterator *bi, int32_t *fillInVec, int32_t capacity, UErrorCode *status);
+    err = UErrorCode[0]
+    cnt = ccall(@libbrk(getRuleStatusVec), Int32,
+                (Ptr{Void}, Ptr{Int32}, Int32,  Ptr{UErrorCode}),
+                bi.p, fillinvec, length(fillinvec), err)
+    @assert SUCCESS(err[1])
+    cnt
+end
+
+function get_rule_status_len(bi::UBrk)
+    err = UErrorCode[0]
+    cnt = ccall(@libbrk(getRuleStatusVec), Int32,
+                (Ptr{Void}, Ptr{Int32}, Int32,  Ptr{UErrorCode}),
+                bi.p, C_NULL, 0, err)
+    @assert SUCCESS(err[1])
+    cnt
 end
 
 """
