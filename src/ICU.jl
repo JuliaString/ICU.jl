@@ -45,9 +45,9 @@ end
 
 _libicu(s, lib, p) = ( Symbol(string(p, s, suffix)), lib )
 
-typealias UBool Int8
-typealias UChar UInt16
-typealias UErrorCode Int32
+const UBool      = Int8
+const UChar      = UInt16
+const UErrorCode = Int32
 
 FAILURE(x::Integer) = x > 0
 SUCCESS(x::Integer) = x <= 0

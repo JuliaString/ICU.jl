@@ -43,7 +43,7 @@ for (i,a) in enumerate([
 end
 end # module UCAL
 
-typealias UDate Float64
+const UDate = Float64
 
 macro libcal(s)     ; _libicu(s, iculibi18n, "ucal_")     ; end
 

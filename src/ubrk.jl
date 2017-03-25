@@ -137,7 +137,7 @@ export UBRK, UBrk
 
 macro libbrk(s)     ; _libicu(s, iculib,     "ubrk_")     ; end
 
-typealias UBrkType Int32
+const UBrkType = Int32
 
 """
     UBrk is a type along with methods for finding the location of boundaries in text.
@@ -208,8 +208,10 @@ type UBrk
         self
     end
 end
-UBrk(kind::Integer, s::UniStr) = UBrk(kind, Vector{UInt16}(s)[1:end-1])
-UBrk(kind::Integer, s::UniStr, loc::AbstractString) = UBrk(kind, Vector{UInt16}(s)[1:end-1], ascii(loc))
+UBrk(kind::Integer, s::UniStr) =
+    UBrk(kind, Vector{UInt16}(s)[1:end-1])
+UBrk(kind::Integer, s::UniStr, loc::AbstractString) =
+    UBrk(kind, Vector{UInt16}(s)[1:end-1], ascii(loc))
 
 """
     Close the Break Iterator and return any resource, if not already closed
