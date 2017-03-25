@@ -23,19 +23,19 @@ if VERSION < v"0.5.0"
     @eval is_bsd()     = $(OS_NAME in (:FreeBSD, :OpenBSD, :NetBSD, :Darwin, :Apple))
     @eval is_unix()    = $(is_linux() || is_bsd())
 
-    typealias ASCIIStr ASCIIString
-    typealias UTF8Str  UTF8String
-    typealias UniStr   UTF16String
-    typealias ByteStr  ByteString
+    const ASCIIStr  = ASCIIString
+    const UTF8Str   = UTF8String
+    const UniStr    = UTF16String
+    const ByteStr   = ByteString
 
     const cvt_utf8  = utf8
     const cvt_utf16 = utf16
 else
     using LegacyStrings
-    typealias ASCIIStr LegacyStrings.ASCIIString
-    typealias UTF8Str  LegacyStrings.UTF8String
-    typealias UniStr   LegacyStrings.UTF16String
-    typealias ByteStr  Union{ASCIIStr, UTF8Str, String}
+    const ASCIIStr  = LegacyStrings.ASCIIString
+    const UTF8Str   = LegacyStrings.UTF8String
+    const UniStr    = LegacyStrings.UTF16String
+    const ByteStr   = Union{ASCIIStr, UTF8Str, String}
 
     const cvt_utf8  = LegacyStrings.utf8
     const cvt_utf16 = LegacyStrings.utf16
