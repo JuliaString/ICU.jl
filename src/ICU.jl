@@ -48,6 +48,16 @@ _libicu(s, lib, p) = ( Symbol(string(p, s, suffix)), lib )
 const UBool      = Int8
 const UChar      = UInt16
 const UErrorCode = Int32
+const U_PARSE_CONTEXT_LEN = 16
+const U_PARSE_TUPLE = ntuple((i)->0x20, U_PARSE_CONTEXT_LEN)
+
+immutable UParseError
+    line::UErrorCode                                 # The line on which the error occured
+    offset::UErrorCode                               # The character offset to the error
+    preContext::NTuple{U_PARSE_CONTEXT_LEN, UInt8}   # Textual context before the error
+    postContext::NTuple{U_PARSE_CONTEXT_LEN, UInt8}  # The error itself and/or textual context after the error
+end
+UParseError() = UParseError(0, 0, U_PARSE_TUPLE, U_PARSE_TUPLE)
 
 FAILURE(x::Integer) = x > 0
 SUCCESS(x::Integer) = x <= 0
