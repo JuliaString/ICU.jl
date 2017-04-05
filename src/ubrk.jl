@@ -207,11 +207,25 @@ type UBrk
         finalizer(self, close)
         self
     end
+    function UBrk(rules::Vector{UInt16}, s::Vector{UInt16})
+        err = UErrorCode[0]
+        p_err = Ref(UParseError())
+        p = ccall(@libbrk(openRules), Ptr{Void},
+                  (Ptr{UChar}, Int32, Ptr{UChar}, Int32, Ptr{UParseError}, Ptr{UErrorCode}),
+                  rules, length(rules), s, length(s), p_err, err)
+        @assert SUCCESS(err[1])
+        # Retain pointer to input vector, otherwise it might be GCed
+        self = new(p, s)
+        finalizer(self, close)
+        self
+    end
 end
 UBrk(kind::Integer, s::UniStr) =
     UBrk(kind, Vector{UInt16}(s)[1:end-1])
 UBrk(kind::Integer, s::UniStr, loc::AbstractString) =
     UBrk(kind, Vector{UInt16}(s)[1:end-1], ascii(loc))
+UBrk(rules::UniStr, s::UniStr) =
+    UBrk(Vector{UInt16}(rules)[1:end-1], Vector{UInt16}(s)[1:end-1])
 
 """
     Close the Break Iterator and return any resource, if not already closed

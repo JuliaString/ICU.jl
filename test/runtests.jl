@@ -36,6 +36,18 @@ end
     end
 end
 
+@testset "custom ubrk (Word/Line/Sentence breaking)" begin
+    str = ICU.cvt_utf16("This is a test of splitting sentences and words with custom rules")
+    rul = ICU.cvt_utf16(".+ {0};")
+    brk = UBrk(rul, str)
+    vec = Vector{Int}()
+    while (v = ICU.next(brk)) != UBRK.DONE
+            push!(vec, v)
+    end
+    close(brk)
+    @test length(vec) == 1
+end
+
 @testset "ucnv (Conversion)" begin
     @test ICU.tolower(ICU.cvt_utf16("ABCDEF")) == "abcdef"
     @test ICU.toupper(ICU.cvt_utf16("abcdef")) == "ABCDEF"
