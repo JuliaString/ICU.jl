@@ -184,6 +184,7 @@ const UBrkType = Int32
 type UBrk
     p::Ptr{Void}
     s
+    r
 
     function UBrk(kind::Integer, s::Vector{UInt16}, loc::ASCIIStr)
         err = UErrorCode[0]
@@ -192,7 +193,7 @@ type UBrk
                   kind, loc, s, length(s), err)
         @assert SUCCESS(err[1])
         # Retain pointer to input vector, otherwise it might be GCed
-        self = new(p, s)
+        self = new(p, s, Void())
         finalizer(self, close)
         self
     end
@@ -203,19 +204,20 @@ type UBrk
                   kind, C_NULL, s, length(s), err)
         @assert SUCCESS(err[1])
         # Retain pointer to input vector, otherwise it might be GCed
-        self = new(p, s)
+        self = new(p, s, Void())
         finalizer(self, close)
         self
     end
     function UBrk(rules::Vector{UInt16}, s::Vector{UInt16})
         err = UErrorCode[0]
-        p_err = Ref(UParseError())
+        # Temporary disable UParseError and pass C_NULL
+        #p_err = Ref(UParseError())
         p = ccall(@libbrk(openRules), Ptr{Void},
                   (Ptr{UChar}, Int32, Ptr{UChar}, Int32, Ptr{UParseError}, Ptr{UErrorCode}),
-                  rules, length(rules), s, length(s), p_err, err)
+                  rules, length(rules), s, length(s), C_NULL, err)
         @assert SUCCESS(err[1])
         # Retain pointer to input vector, otherwise it might be GCed
-        self = new(p, s)
+        self = new(p, s, rules)
         finalizer(self, close)
         self
     end
@@ -232,7 +234,7 @@ UBrk(rules::UniStr, s::UniStr) =
 """
 close(bi::UBrk) =
     bi.p == C_NULL ||
-        (ccall(@libbrk(close), Void, (Ptr{Void},), bi.p) ; bi.p = C_NULL ; bi.s = Void())
+        (ccall(@libbrk(close), Void, (Ptr{Void},), bi.p) ; bi.p = C_NULL ; bi.s = Void() ; bi.r = Void())
 
 """
     Determine the most recently-returned text boundary.
